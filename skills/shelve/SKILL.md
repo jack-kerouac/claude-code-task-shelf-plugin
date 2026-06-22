@@ -1,7 +1,7 @@
 ---
 name: shelve
 description: Shelve remaining tasks onto the task shelf (stack push)
-disable-model-invocation: true
+disable-model-invocation: false
 allowed-tools: Bash(date:*), Bash(ls:*), Bash(mv:*), Bash(mkdir:*), Write, Read, Edit
 ---
 

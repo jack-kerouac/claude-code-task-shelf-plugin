@@ -31,10 +31,13 @@ Read the file fully. Then delete it with `rm`.
 
 **Step 4: Review recent commits for context**
 
-Extract the `**Shelved**: {datetime}` value from the shelf file (format: `YYYY-MM-DD HH:MM`). Run `git log --oneline -10 --after="{datetime}"` to see commits made since the task was shelved. Read the task file (already loaded in step 3) to understand what the task is about, then for any commits whose message appears related to the current task, run `git show <hash>` to read the full commit message and diff. Summarize what was done in those relevant commits so the user has concrete context before diving in. Skip unrelated commits.
+Extract the `**Shelved**: {datetime}` value from the shelf file (format: `YYYY-MM-DD HH:MM`). Run `git log --oneline -10 --after="{datetime}"` to see commits made since the task was shelved. Read the task file (already loaded in step 3) to understand what the task is about, then for any commits whose message appears related to the current task, run `git show <hash>` to read the full commit message and diff.
 
 **Step 5: Present task**
 
-Present the full content of the shelf file. The user is now working on this task.
+Explain the task to the user. Never skip this step!
+Mention when the task was shelved. Mention which work since then has been done in those relevant commits. Skip unrelated commits.
+
+Suggest to the user how to start working now.
 
 Finish with: "Run `/rename` to name this session after the current task."
