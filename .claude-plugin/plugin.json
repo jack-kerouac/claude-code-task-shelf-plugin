@@ -1,9 +1,8 @@
 {
   "name": "task-shelf",
   "description": "Task stack for focused development. Continuously split work into small, shippable pieces.",
-  "version": "1.0.0",
   "author": {
     "name": "Florian Hertnagel"
   },
-  "repository": "https://github.com/florianhertnagel/claude-code-task-shelf-plugin"
+  "repository": "https://github.com/jack-kerouac/claude-code-task-shelf-plugin"
 }

@@ -1,0 +1,13 @@
+{
+  "name": "jack-kerouac",
+  "description": "Florian Hertnagel's Claude Code plugins.",
+  "owner": {
+    "name": "Florian Hertnagel"
+  },
+  "plugins": [
+    {
+      "name": "task-shelf",
+      "source": "./"
+    }
+  ]
+}
