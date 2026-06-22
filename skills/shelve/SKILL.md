@@ -34,7 +34,7 @@ From the conversation, identify the task being worked on right now and every rem
 
 **Step 2: Propose ordering**
 
-Present the tasks to be shelved in your proposed priority order with a one-line rationale for each. Wait for the user to confirm or reorder before creating any files.
+Present the tasks to be shelved in your proposed order with a one-line rationale for each. The order must respect dependencies: a task has to come after every task it builds on (not necessarily right after — just somewhere earlier), so that by the time it's popped its prerequisites are already done and committed. Order by priority within that constraint. Wait for the user to confirm or reorder before creating any files.
 
 **Step 3: Number the tasks and make room**
 
@@ -54,7 +54,7 @@ Each file must be a **complete briefing for a fresh Claude session with zero pri
 # {Task title}
 
 **Shelved**: {datetime}
-**Requires**: {What the preceding task delivers that this task builds on — omit if this is the first task or has no dependencies}
+**Requires**: {The earlier work this task builds on — possibly several, and not necessarily the immediately preceding task. For each, describe the capability or artifact it delivers that this task depends on, and name the task so it's recognizable. Keep it conceptual: at shelve time the prerequisite is still a planned task file, and by pop time it's finished and committed with that file gone — so don't tie the reference to a file or a commit, since neither exists at both moments. Omit if none.}
 
 ## Summary
 {1–2 sentences: what needs to be done and why}
