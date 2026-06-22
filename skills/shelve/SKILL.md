@@ -1,6 +1,6 @@
 ---
 name: shelve
-description: Shelve remaining tasks onto the task shelf (stack push)
+description: Shelve tasks onto the task shelf (a stack) to focus on one at a time — each becomes a self-contained briefing file under .claude/shelf/. Use when the user says "shelve the rest", "shelf the remaining tasks" or "shelve everything".
 disable-model-invocation: false
 allowed-tools: Bash(date:*), Bash(ls:*), Bash(mv:*), Bash(mkdir:*), Bash(git status:*), Write, Read
 ---
@@ -13,7 +13,7 @@ allowed-tools: Bash(date:*), Bash(ls:*), Bash(mv:*), Bash(mkdir:*), Bash(git sta
 
 ## Your task
 
-The user wants to shelve tasks from the current conversation to focus on one thing at a time. Shelved tasks become self-contained briefing files that a fresh session picks up cold via `/task-shelf:shelf-pop`.
+The user wants to shelve tasks from the current conversation to focus on one thing at a time. Shelved tasks become self-contained briefing files that a fresh session picks up cold via `/task-shelf:shelf-pop`. Keep the shelf small — a handful of tasks at most; if something won't be picked up soon, suggest promoting it to the user's issue tracker rather than shelving it.
 
 The whole skill turns on **one decision: does the task being worked on right now get shelved too, or stay live in this session?**
 

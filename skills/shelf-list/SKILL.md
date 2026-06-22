@@ -1,7 +1,7 @@
 ---
 name: shelf-list
-description: List and optionally reorder the task shelf
-disable-model-invocation: true
+description: List the task shelf, and reorder it on request. Use when the user says "list the shelf", "show the shelf", or "reorder the shelf".
+disable-model-invocation: false
 allowed-tools: Bash(ls:*), Bash(mv:*), Read
 ---
 

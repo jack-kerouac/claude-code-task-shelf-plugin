@@ -1,7 +1,7 @@
 ---
 name: shelf-pop
-description: Pop the top task off the shelf and load its context
-disable-model-invocation: true
+description: Pop the next task off the task shelf and load its full context to start working on it. Requires a clean working tree (one task, one commit). Use when the user says "pop the shelf", "next shelved task", or "pick up the next task".
+disable-model-invocation: false
 allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git show:*), Bash(ls:*), Bash(rm:*), Read
 ---
 
