@@ -14,30 +14,12 @@ allowed-tools: Bash(git status:*), Bash(git log:*), Bash(git show:*), Bash(ls:*)
 
 The user has finished the current task and wants to start the next shelved one.
 
-**Step 1: Check git**
+**Step 1 — Check git.** If `git status --short` is dirty, STOP: "Uncommitted changes detected. Commit everything before popping the shelf — one task, one commit."
 
-If `git status --short` shows any uncommitted changes, STOP immediately:
-"Uncommitted changes detected. Commit everything before popping the shelf — one task, one commit."
+**Step 2 — Find.** Take the lexicographically smallest numbered file in `.claude/shelf/` (`01-…` before `02-…`). If none: "The shelf is empty — you're all done!" and stop.
 
-**Step 2: Find next task**
+**Step 3 — Load.** Read the file fully, then `rm` it.
 
-Find the lexicographically smallest numbered file in `.claude/shelf/` (e.g. `01-foo.md` before `02-bar.md`).
+**Step 4 — Context.** Read the file's `**Shelved**: {datetime}`, run `git log --oneline -10 --after="{datetime}"`, and `git show <hash>` any commit whose message looks related to this task.
 
-If no files exist: "The shelf is empty — you're all done!" and stop.
-
-**Step 3: Load and delete**
-
-Read the file fully. Then delete it with `rm`.
-
-**Step 4: Review recent commits for context**
-
-Extract the `**Shelved**: {datetime}` value from the shelf file (format: `YYYY-MM-DD HH:MM`). Run `git log --oneline -10 --after="{datetime}"` to see commits made since the task was shelved. Read the task file (already loaded in step 3) to understand what the task is about, then for any commits whose message appears related to the current task, run `git show <hash>` to read the full commit message and diff.
-
-**Step 5: Present task**
-
-Explain the task to the user. Never skip this step!
-Mention when the task was shelved. Mention which work since then has been done in those relevant commits. Skip unrelated commits.
-
-Suggest to the user how to start working now.
-
-Finish with: "Run `/rename` to name this session after the current task."
+**Step 5 — Present.** Always explain the task to the user: what it is, when it was shelved, and which work since then (from the related commits) bears on it — skip unrelated ones. Suggest how to start. Finish with: "Run `/rename` to name this session after the current task."

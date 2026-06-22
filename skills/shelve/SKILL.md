@@ -13,60 +13,43 @@ allowed-tools: Bash(date:*), Bash(ls:*), Bash(mv:*), Bash(mkdir:*), Bash(git sta
 
 ## Your task
 
-The user wants to shelve tasks from the current conversation to focus on one thing at a time. Shelved tasks become self-contained briefing files that a fresh session picks up cold via `/task-shelf:shelf-pop`. Keep the shelf small — a handful of tasks at most; if something won't be picked up soon, suggest promoting it to the user's issue tracker rather than shelving it.
+Write each shelved task as a self-contained briefing a fresh session can pick up cold via `/task-shelf:shelf-pop`. Keep the shelf small (a handful at most); if a task won't be picked up soon, point the user at their issue tracker instead.
 
-The whole skill turns on **one decision: does the task being worked on right now get shelved too, or stay live in this session?**
+**One decision drives everything: is the current task shelved too, or kept live?** Infer from phrasing; ask if unclear.
 
-- **Stay live** ("shelve the rest", "shelf the remaining"): the current task keeps going here; only the *other* tasks go to the shelf. You finish the current one in this session, then pop the next.
-- **Shelve it too** ("shelve everything", "start fresh", "planning shelve"): nothing stays live; the current task is written to the shelf alongside the rest, and you end by clearing the session and popping the first one clean.
+- **Kept live** ("shelve the rest"): only the *other* tasks are written; finish the current one here, then pop the next.
+- **Shelved too** ("shelve everything", "start fresh"): the current task is written alongside the rest; end by having the user `/clear` and pop.
 
-Infer which from the user's phrasing. If it's genuinely unclear, ask.
+Shelving the current task too needs a clean tree — underway work can't become a cold-start briefing. If it's shelved too and `git status` is dirty, STOP:
 
-**Shelving the current task too requires a clean working tree.** A dirty tree means the current task is already underway, and underway work can't become a cold-start briefing. So if the user wants to shelve the current task and `git status` shows uncommitted changes, STOP:
+> "You have uncommitted work, so the current task is already underway — it can't be shelved as a fresh task. Finish and commit it (then pop the rest), or discard the changes to re-approach it from scratch. Don't commit partial work just to clear the tree; that splits one task across two commits."
 
-> "You have uncommitted work, so the current task is already underway — it can't be shelved as a fresh task. Finish it and commit it (then pop the rest), or discard the changes if you want to re-approach it from scratch. Don't commit partial work just to clear the tree; that splits one task across two commits."
+(Keeping the current task live is fine with a dirty tree — you'll commit before popping.)
 
-(The "stay live" path is unaffected — a dirty tree is expected there, since you'll finish and commit the current task before popping.)
+**Step 1 — Identify.** The current task and every remaining task. Decide (per above) whether the current one is written.
 
-**Step 1: Identify the tasks**
+**Step 2 — Order.** Propose an order with a one-line rationale each; wait for confirmation before writing anything. Order by priority, but every task must come after the tasks it builds on (anywhere earlier, not necessarily adjacent), so prerequisites are done before it's popped.
 
-From the conversation, identify the task being worked on right now and every remaining task to shelve. Decide (per above) whether the current task is included in what gets written.
+**Step 3 — Number.** New tasks push to the **front**, numbered from `01`. If the shelf already has numbered files, bump them: renumber existing files sequentially from `1 + N` (N = new task count), renaming highest-first so nothing is overwritten mid-sequence. E.g. inserting 3 with existing `[03, 04]` → `04`→`05`, `03`→`04`; new tasks take `01, 02, 03`.
 
-**Step 2: Propose ordering**
-
-Present the tasks to be shelved in your proposed order with a one-line rationale for each. The order must respect dependencies: a task has to come after every task it builds on (not necessarily right after — just somewhere earlier), so that by the time it's popped its prerequisites are already done and committed. Order by priority within that constraint. Wait for the user to confirm or reorder before creating any files.
-
-**Step 3: Number the tasks and make room**
-
-New tasks are a stack push — they go at the **front**, numbered sequentially starting at `01`.
-
-If `.claude/shelf/` already has numbered files, bump them to make room: sort existing files by number, then renumber them sequentially starting at `1 + N`, where N is the count of new tasks. Rename in reverse sorted order (highest number first) so you never overwrite a file mid-sequence. Example: inserting 3 tasks with existing `[03, 04]` → rename `04` → `05`, then `03` → `04`; the new tasks take `01, 02, 03`.
-
-**Step 4: Create the briefing files**
-
-Create `.claude/shelf/` if it doesn't exist. For each task in the confirmed order, write `.claude/shelf/{NN}-{slug}.md`:
-- `NN` is zero-padded (01, 02…)
-- `slug` is a short kebab-case label derived from the task title (2–4 words)
-
-Each file must be a **complete briefing for a fresh Claude session with zero prior conversation history**. Write with enough context that someone starting cold can immediately dive in:
+**Step 4 — Write.** Create `.claude/shelf/` if needed. For each task write `.claude/shelf/{NN}-{slug}.md` (`NN` zero-padded, `slug` a 2–4 word kebab label). Each file is a complete briefing for a session with zero prior history:
 
 ```
 # {Task title}
 
 **Shelved**: {datetime}
-**Requires**: {The earlier work this task builds on — possibly several, and not necessarily the immediately preceding task. For each, describe the capability or artifact it delivers that this task depends on, and name the task so it's recognizable. Keep it conceptual: at shelve time the prerequisite is still a planned task file, and by pop time it's finished and committed with that file gone — so don't tie the reference to a file or a commit, since neither exists at both moments. Omit if none.}
+**Requires**: {Earlier work this builds on — any prior task, possibly several. Name each and describe the capability it delivers, conceptually — not as a file or commit reference, since neither survives the whole lifecycle. Omit if none.}
 
 ## Summary
-{1–2 sentences: what needs to be done and why}
+{1–2 sentences: what needs doing and why}
 
 ## Context
-{Full context: relevant architectural decisions, constraints, code locations, why this was deferred, what was discussed}
+{Architectural decisions, constraints, code locations, why it was deferred, what was discussed}
 
 ## Task
 {Concrete description of what to implement or change}
 ```
 
-**Step 5: Confirm**
-
-- Current task stayed live: "Shelved N tasks (01–0N). Continue working on {current task}."
-- Current task shelved too: "Shelved N tasks (01–0N). Run `/clear` then `/task-shelf:shelf-pop` to begin."
+**Step 5 — Confirm.**
+- Kept live: "Shelved N tasks (01–0N). Continue working on {current task}."
+- Shelved too: "Shelved N tasks (01–0N). Run `/clear` then `/task-shelf:shelf-pop` to begin."
