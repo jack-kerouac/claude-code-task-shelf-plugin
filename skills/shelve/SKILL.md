@@ -2,7 +2,7 @@
 name: shelve
 description: Shelve remaining tasks onto the task shelf (stack push)
 disable-model-invocation: false
-allowed-tools: Bash(date:*), Bash(ls:*), Bash(mv:*), Bash(mkdir:*), Write, Read, Edit
+allowed-tools: Bash(date:*), Bash(ls:*), Bash(mv:*), Bash(mkdir:*), Write, Read
 ---
 
 ## Context
@@ -12,39 +12,36 @@ allowed-tools: Bash(date:*), Bash(ls:*), Bash(mv:*), Bash(mkdir:*), Write, Read,
 
 ## Your task
 
-The user wants to shelve remaining tasks from the current conversation to focus on one task at a time.
+The user wants to shelve tasks from the current conversation to focus on one thing at a time. Shelved tasks become self-contained briefing files that a fresh session picks up cold via `/task-shelf:shelf-pop`.
 
-**Detect mode from user's phrasing:**
-- **Mid-coding mode** ("shelve the rest", "shelf the remaining", etc.): Creates files starting at `01` for future tasks only. User continues in the same session.
-- **Planning mode** ("shelve everything", "I want to start fresh", "planning shelve", etc.): Creates `00` for the current task too. Ends by telling user to run `/clear` then `/task-shelf:shelf-pop`.
+The whole skill turns on **one decision: does the task being worked on right now get shelved too, or stay live in this session?**
 
-**Step 1: Identify tasks**
+- **Stay live** ("shelve the rest", "shelf the remaining"): the current task keeps going here; only the *other* tasks go to the shelf. You finish the current one in this session, then pop the next.
+- **Shelve it too** ("shelve everything", "start fresh", "planning shelve"): nothing stays live; the current task is written to the shelf alongside the rest, and you end by clearing the session and popping the first one clean.
 
-From the current conversation, identify:
-- The current task (what is being worked on right now)
-- All remaining tasks to be shelved
+Infer which from the user's phrasing. If it's genuinely unclear, ask.
+
+**Step 1: Identify the tasks**
+
+From the conversation, identify the task being worked on right now and every remaining task to shelve. Decide (per above) whether the current task is included in what gets written.
 
 **Step 2: Propose ordering**
 
-Present the remaining tasks in your proposed priority order with a one-line rationale for each. Wait for the user to confirm or reorder before creating any files.
+Present the tasks to be shelved in your proposed priority order with a one-line rationale for each. Wait for the user to confirm or reorder before creating any files.
 
-**Step 3: Determine starting number and handle existing shelf**
+**Step 3: Number the tasks and make room**
 
-- In mid-coding mode: new files start at `01`.
-- In planning mode: new files start at `00`.
-- If `.claude/shelf/` already has numbered files (re-shelve / splitting mid-task): insert new tasks at the front. Rename existing files to make room — sort existing files by number, then renumber them sequentially starting at `start + N` (where `start` is the new first slot and N is the count of new tasks). Example: inserting 3 tasks starting at 01 with existing [03, 04] → rename 03 → 04, 04 → 05 (not 06, 07). In planning mode, also delete any existing `00-*` file (replaced by the new current task).
+New tasks are a stack push — they go at the **front**, numbered sequentially starting at `01`.
 
-Rename in reverse sorted order (highest number first) to avoid overwriting files mid-sequence.
+If `.claude/shelf/` already has numbered files, bump them to make room: sort existing files by number, then renumber them sequentially starting at `1 + N`, where N is the count of new tasks. Rename in reverse sorted order (highest number first) so you never overwrite a file mid-sequence. Example: inserting 3 tasks with existing `[03, 04]` → rename `04` → `05`, then `03` → `04`; the new tasks take `01, 02, 03`.
 
-**Step 4: Create shelf files**
+**Step 4: Create the briefing files**
 
-Create `.claude/shelf/` if it doesn't exist.
-
-For each task (in the confirmed order), create `.claude/shelf/{NN}-{slug}.md`:
-- `NN` is zero-padded (00, 01, 02...)
+Create `.claude/shelf/` if it doesn't exist. For each task in the confirmed order, write `.claude/shelf/{NN}-{slug}.md`:
+- `NN` is zero-padded (01, 02…)
 - `slug` is a short kebab-case label derived from the task title (2–4 words)
 
-Each file must be a **complete briefing for a fresh Claude session with zero prior conversation history**. Write with enough context that someone starting cold can immediately dive in. Use this structure:
+Each file must be a **complete briefing for a fresh Claude session with zero prior conversation history**. Write with enough context that someone starting cold can immediately dive in:
 
 ```
 # {Task title}
@@ -63,5 +60,6 @@ Each file must be a **complete briefing for a fresh Claude session with zero pri
 ```
 
 **Step 5: Confirm**
-- Mid-coding mode: "Shelved N tasks (01–0N). Continue working on {current task}."
-- Planning mode: "Shelved N tasks (00–0N). Run `/clear` then `/task-shelf:shelf-pop` to begin."
+
+- Current task stayed live: "Shelved N tasks (01–0N). Continue working on {current task}."
+- Current task shelved too: "Shelved N tasks (01–0N). Run `/clear` then `/task-shelf:shelf-pop` to begin."

@@ -21,7 +21,7 @@ If `git status --short` shows any uncommitted changes, STOP immediately:
 
 **Step 2: Find next task**
 
-Find the lexicographically smallest numbered file in `.claude/shelf/` (e.g. `00-foo.md` before `01-bar.md`).
+Find the lexicographically smallest numbered file in `.claude/shelf/` (e.g. `01-foo.md` before `02-bar.md`).
 
 If no files exist: "The shelf is empty — you're all done!" and stop.
 
