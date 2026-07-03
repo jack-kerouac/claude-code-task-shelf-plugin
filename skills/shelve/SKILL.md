@@ -1,6 +1,6 @@
 ---
 name: shelve
-description: Use when the user says to "shelve" or "shelf" a task, some, or all of them.
+description: Shelve tasks onto the task shelf (a stack) to focus on one at a time — each becomes a self-contained briefing file under .claude/shelf/. Use when the user says to "shelve" or "shelf" a task, some, or all of them.
 disable-model-invocation: false
 allowed-tools: Bash(date:*), Bash(ls:*), Bash(mv:*), Bash(mkdir:*), Bash(git status:*), Write, Read
 ---
